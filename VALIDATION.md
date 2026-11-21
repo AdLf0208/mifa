@@ -59,3 +59,33 @@ export GAME CTL RES HORIZON_RES E2E_TMP SOCK
 ports/tools/build-slot.sh run --job W1-mifa-e2e --port ports/mifa --step e2e -- \
     bash ports/mifa/tools/e2e.sh
 ```
+
+# mifa — validation record, 0.2.1 (licence repair, supersedes the 0.2.0 numbers above)
+
+Package: `ports/mifa/mifa.hmod` — **62,998 B**, sha256
+`19f1ffcd80f62077197b5561fc07f1c9786369540156300716714bbf5ae7008a`, **108 entries** (84 JSON +
+22 PNG + `horizon-mod.toml` + `LICENSE`), declared version **0.2.1**, API `0.2`, `side = "both"`,
+`capabilities = ["registries"]`, **no `[native]`**, **no packed `Cargo.lock`**.
+
+The archive changed because the review asked for the upstream MIT notice *inside* the package; the
+content is the 0.2.0 content (the leg below re-proves it on the new bytes). `cargo horizon-mod
+build` packs only `horizon-mod.toml` + `assets/` + `data/`, so `tools/pack_license.py` adds the root
+entry deterministically after the build; `--check` compares the delivered file with build +
+`LICENSE`.
+
+| Gate | Command | Result |
+|---|---|---|
+| the content rule | `python3 tools/gen_content.py --check` | `84 generated files, 0 drifted`, exit 0 |
+| licence entry | `unzip -l mifa.hmod \| grep LICENSE` | `1911 … LICENSE`; `cmp <(unzip -p mifa.hmod LICENSE) LICENSE` identical |
+| package check | `cargo horizon-mod check mifa.hmod` | `mifa 0.2.1 (mod, API 0.2, both)`, `62998 bytes, SHA-256 19f1ffcd…`, `no code: content only, nothing to run`, exit **0** |
+| `fits` on the pin | `cargo horizon-mod fits mifa.hmod --build 0a875da` | exit **2**, the tool's "a content mod … doesn't apply" (HANDOVER §0g) |
+| reproducible package | `rm -f Cargo.lock` + `cargo horizon-mod build` + `tools/pack_license.py`, twice | `cmp`-identical, both `19f1ffcd…`, `Cargo.lock` absent after both |
+| package verifier | `python3 ports/tools/verify-sdk-package.py mifa` | **1/1** |
+| skills gate | `python3 ports/tools/check-skills.py --notes ports/mifa --strict` | PASS |
+| the in-game leg | `bash tools/e2e.sh` (two-mod game) | `PASS` + **`EXIT:0`** |
+| the control | `NEGATIVE=1 bash tools/e2e.sh` | `FAIL` + **`EXIT:1`** |
+| the counterfactual | `SELFTEST=1 bash tools/e2e.sh` | `FAIL` + **`EXIT:1`** |
+| log gate | `python3 ports/tools/check-e2e-logs.py mifa-e2e --strict` | `logs=3 ok=3 missing-exit=0 bad-exit=0` |
+
+Evidence: `ports/_shared/evidence/mifa/license/` (builds, cmp, check, fits, verifier) and
+`ports/_shared/evidence/mifa-e2e/` (the three legs).

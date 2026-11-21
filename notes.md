@@ -1,4 +1,4 @@
-# mifa — port notes (third dispatch: the content package, 0.2.0)
+# mifa — port notes (third dispatch: the content package; 0.2.1 after the licence repair)
 
 Port of **More Industrial Foregoing Addons 2.1.0**
 (`mifa-neoforge-1.21.x-2.1.0.jar`, MIT, SHA-256
@@ -7,7 +7,9 @@ Port of **More Industrial Foregoing Addons 2.1.0**
 commit `5fc3ac843f03397f7a117152a081e42980ee2e52` (tag `2.1.0`). Target pin: Horizon
 **`0a875da91dbb0fdcb7ba8c42c11341aa229af51a`** + horizon-mixins
 `e59da9094f0c2fdda6c627fe9eff22dec6a906f0`, game 26.3, API `0.2`. Delivered: `mifa.hmod`,
-**0.2.0**, a **first publication** (the id is not on `main`).
+**0.2.1** — a **first publication** (the id is not on `main`). PR #1644 was opened with **0.2.0**
+(61,784 B, `a647e8b3…`); the licence repair at the end of this file is the same PR's archive at
+**0.2.1** (62,998 B, `19f1ffcd…`).
 
 **Licence: MIT — rank 0 (permissive).** Read from the jar (`META-INF/neoforge.mods.toml`:
 `license = "The MIT License (MIT)"`; `audit_licences.py --mod mifa --fetch` → `AUDITED`,
@@ -217,6 +219,76 @@ Per-family `blocked` symbols, so the gap is a line and not a shrug:
 `ports/_shared/evidence/mifa-e2e/`: `e2e-default.log` (PASS + EXIT:0), `e2e-negative.log`
 (control: the same game without `--dev-mod`; FAIL + EXIT:1), `e2e-selftest.log`
 (`SELFTEST=1`; FAIL + EXIT:1).
+
+## Licence repair (2026-11-21) — the MIT notice inside the package (0.2.1, PR #1644)
+
+Reviewer, verbatim: *"…the submitted `.hmod` contains neither that MIT copyright and permission
+notice nor another…"*
+
+**What was wrong.** The archive carried **no licence file at all**. `LICENSE` sat in the port tree
+(where a human and the listing's link find it), but a content-only package cannot get a root
+`LICENSE` through the builder: `cargo horizon-mod build` packs exactly the files
+`horizon_mods::Content::read` lists — `horizon-mod.toml`, `assets/` and `data/` (the pin's
+`crates/cargo-horizon-mod/src/main.rs`, `build_in`) — and a content path must be lowercase
+(`crates/horizon-mods/src/content.rs::check_path`: `[a-z0-9_.-]` per part), so
+`data/mifa/license/LICENSE` is refused and `LICENSE` at the root is never collected. The jar ships
+no licence file either (`unzip -l …jar` has only `META-INF/MANIFEST.MF` and
+`META-INF/neoforge.mods.toml`, which declares `license = "The MIT License (MIT)"`), so the notice
+is the **upstream repository's**.
+
+**What changed.**
+
+1. **`LICENSE`** now carries the upstream notice **verbatim** — `Copyright (c) 2024 Christofmeg`
+   and the full MIT permission paragraph, from upstream `LICENSE` at commit
+   `5fc3ac843f03397f7a117152a081e42980ee2e52` (tag 2.1.0) — plus this port's own section
+   (`Copyright (c) 2026 AdLf0208`, the jar's SHA-256, and the fact that the jar declares MIT in
+   `neoforge.mods.toml` but carries no file). The earlier copy paraphrased the copyright line
+   (`Copyright (c) 2024 Christofmeg (More Industrial Foregoing Addons)`); the upstream line is now
+   exact and the parenthetical moved into the port's section.
+2. **`tools/pack_license.py`** — the deterministic post-build step that puts it *inside* the
+   archive: it re-writes the built `.hmod` and adds a root `LICENSE` entry, keeping the builder's
+   entry order, compression method and `1980-01-01` stamps (the added entry uses the same), and
+   `--check` proves the delivered file equals build + `LICENSE`. It is a step, not a hand edit:
+   two `cargo horizon-mod build` + `pack_license.py` runs are byte-identical.
+3. **Version 0.2.1 in `horizon-mod.toml`** — the only manifest. A content package has no
+   `Cargo.toml` (`build_in` refuses one), so there is no second version string; `check` reads the
+   bump back: `mifa 0.2.1`.
+4. **No `data/mifa/license/` copy was added.** simplylight's shape exists because its content half
+   had to carry the text; here the reviewer asked for a `LICENSE` entry and `cargo horizon-mod
+   check` accepts the root one (the content reader collects only `assets/`/`data/` entries and
+   ignores the rest), so one file is the deliverable. The in-game leg below proves the extra entry
+   does not stop the package loading.
+5. **`LICENSE-NOTICE.md`** joined the port tree (not the archive — the builder cannot pack it), the
+   repository half ARCHITECTURE.md §8 asks for: where the upstream text was read from (the jar's
+   `neoforge.mods.toml` and the upstream `LICENSE` at `5fc3ac84`), the jar's SHA-256, and this
+   port's own copyright.
+
+**Ladder on the delivered bytes** (`ports/_shared/evidence/mifa/license/`):
+
+| Step | Command | Result |
+|---|---|---|
+| the content rule | `python3 tools/gen_content.py --check` | `84 generated files, 0 drifted`, exit 0 (`gen-content-check.log`) |
+| reproducible package | `rm -f Cargo.lock` + `cargo horizon-mod build` + `tools/pack_license.py`, twice | `cmp`-identical, both `19f1ffcd…` (`license-build-1.log`, `license-build-2.log`, `build-cmp.log`); **no `Cargo.lock`** in the tree after either |
+| package check | `cargo horizon-mod check mifa.hmod` | `mifa 0.2.1 (mod, API 0.2, both)`, `62998 bytes, SHA-256 19f1ffcd…`, `no code: content only, nothing to run` — exit **0** (`license-check.log`) |
+| `fits` | `cargo horizon-mod fits mifa.hmod --build 0a875da` | exit **2**, `… is a content mod, with no code to check against a build; \`fits\` doesn't apply.` — the tool's "not applicable" (HANDOVER §0g), (`license-fits-0a875da.log`) |
+| the in-game leg | `tools/e2e.sh` on the two-mod game (`industrialforegoing` 0.2.5 + `--dev-mod mifa.hmod`) | `PASS` + **`EXIT:0`** (`ports/_shared/evidence/mifa-e2e/e2e-default.log`) |
+| the control | `NEGATIVE=1` (the same game without `--dev-mod`) | `FAIL` + **`EXIT:1`** (`e2e-negative.log`) |
+| the counterfactual | `SELFTEST=1` | `FAIL` + **`EXIT:1`** (`e2e-selftest.log`) |
+| log gate | `python3 ports/tools/check-e2e-logs.py mifa-e2e --strict` | `logs=3 ok=3 missing-exit=0 bad-exit=0`, exit 0 |
+| package verifier | `python3 ports/tools/verify-sdk-package.py mifa` | **1/1** (`verify-sdk-package.log`) |
+
+**Receipt, new archive.** `mifa.hmod` **62,998 B**, SHA-256
+**`19f1ffcd80f62077197b5561fc07f1c9786369540156300716714bbf5ae7008a`**, **108** entries (the 0.2.0
+package was 61,784 B, `a647e8b3…`, 107 entries). `unzip -l mifa.hmod` lists
+
+```
+     2170  1980-01-01 00:00   horizon-mod.toml
+     1911  1980-01-01 00:00   LICENSE
+```
+
+and `unzip -p mifa.hmod LICENSE` is byte-identical to `ports/mifa/LICENSE`
+(`cmp <(unzip -p mifa.hmod LICENSE) ports/mifa/LICENSE`). Nothing in game changes: the items,
+recipes and readouts the leg asserts are the 0.2.0 ones.
 
 ## Next slice
 

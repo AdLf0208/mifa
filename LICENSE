@@ -1,7 +1,6 @@
 MIT License
 
-Copyright (c) 2024 Christofmeg (More Industrial Foregoing Addons)
-Copyright (c) 2026 AdLf0208 (Horizon port)
+Copyright (c) 2024 Christofmeg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,3 +19,22 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+Horizon port of More Industrial Foregoing Addons
+
+Copyright (c) 2026 AdLf0208
+
+This package is the Horizon port (`mifa`, mod API 0.2) of More Industrial
+Foregoing Addons 2.1.0 by Christofmeg
+(https://github.com/Christofmeg/MoreIndustrialForegoingAddons), and it carries
+the upstream MIT licence above. The upstream jar
+(`mifa-neoforge-1.21.x-2.1.0.jar`, SHA-256
+dab09f72c4df39efc5d7f8949e4ab02b7d5f74242ee17b8c26fb172c2761d49f) ships no
+LICENSE file: its `META-INF/neoforge.mods.toml` declares
+`license = "The MIT License (MIT)"`, and the notice above is the upstream
+repository's `LICENSE` at commit 5fc3ac843f03397f7a117152a081e42980ee2e52
+(tag 2.1.0). The item names, model JSON and the recipe/tag data in this package
+are a rewrite of that project's data for Minecraft 26.3 on Horizon; they are
+distributed under the same MIT terms.

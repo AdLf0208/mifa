@@ -1,6 +1,6 @@
 id = "mifa"
 name = "More Industrial Foregoing Addons"
-version = "0.2.0"
+version = "0.2.1"
 description = """A port of More Industrial Foregoing Addons for Horizon: the 18 Industrial Foregoing addons
 above tier 2, three per tier from tier 3 to tier 8 — speed, efficiency and processing — each a
 content item carrying the `titanium:augments` payload its parent's item class would stamp
