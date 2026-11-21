@@ -1,0 +1,27 @@
+{
+  "input": [
+    "#c:ores/netherite_scrap",
+    "minecraft:netherite_scrap",
+    "#c:glass_panes/colorless",
+    "#c:glass_panes/colorless",
+    "#c:gears/netherite",
+    "industrialforegoing:speed_addon_tier_2",
+    "minecraft:sugar",
+    "minecraft:sugar"
+  ],
+  "inputFluid": {
+    "amount": 3000,
+    "fluid": "industrialforegoing:pink_slime"
+  },
+  "output": {
+    "components": {
+      "titanium:augments": {
+        "Speed": 4.0
+      }
+    },
+    "count": 1,
+    "id": "mifa:speed_addon_3"
+  },
+  "processingTime": 600,
+  "type": "industrialforegoing:dissolution_chamber"
+}

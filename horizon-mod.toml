@@ -1,0 +1,28 @@
+id = "mifa"
+name = "More Industrial Foregoing Addons"
+version = "0.2.0"
+description = """A port of More Industrial Foregoing Addons for Horizon: the 18 Industrial Foregoing addons
+above tier 2, three per tier from tier 3 to tier 8 — speed, efficiency and processing — each a
+content item carrying the `titanium:augments` payload its parent's item class would stamp
+(`Speed`/`Processing` = 1 + tier, `Efficiency` = 1 - tier * 0.1), so an Industrial Foregoing
+machine seats it in one of its two augment slots and reads the multiplier: a tier 3 speed addon
+makes a Water Condensator's bar fall four a tick where an empty slot falls one, and a tier 3
+efficiency addon shortens it to 70. A tier 3 speed addon also ships with its own netherite gear —
+the convention `c:gears/netherite` tier the chain consumes — made in a smithing table from a
+diamond gear and a netherite ingot, and every tier's chamber recipe the parent's fluids allow:
+tier 3 in pink slime, tiers 7 and 8 in ether gas, plus ModRecipeProvider's cheaper re-declarations
+of the parent's tier 2 addons. Nine of the 21 chamber recipes are not carried: tier 4 asks for a
+`c:experience` fluid tag with no member at this pin, and tiers 5 and 6 for the `sludge` and
+`biofuel` fluids the parent does not declare (notes.md names each one). The 18 names are declared
+here because the jar has no `mifa:` lang keys — the parent builds them from its own keys."""
+authors = ["Christofmeg (upstream)", "AdLf0208"]
+# The content mod (mod API 0.2): a flat .hmod carrying items, recipes and tags in data/ and
+# assets/. The id is the resource namespace and the only identity. No [native] block: every piece
+# of behaviour this mod has — seating an addon, applying its multiplier, running a dissolution
+# chamber — belongs to Industrial Foregoing, which registers the `titanium:augments` component
+# type these items carry. There is no code half to write (see notes.md, "shape").
+api = "0.2"
+# An integrated server belongs to the client installation, and the items exist on both sides.
+side = "both"
+# The 19 items and the creative tab are declared as content in data/mifa/horizon/.
+capabilities = ["registries"]

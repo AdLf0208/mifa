@@ -1,0 +1,10 @@
+{
+  "addition": "#c:ingots/netherite",
+  "base": "#c:gears/diamond",
+  "result": {
+    "count": 1,
+    "id": "mifa:netherite_gear"
+  },
+  "template": "minecraft:netherite_upgrade_smithing_template",
+  "type": "minecraft:smithing_transform"
+}

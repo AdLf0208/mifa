@@ -1,0 +1,27 @@
+{
+  "input": [
+    "minecraft:dragon_head",
+    "minecraft:dragon_breath",
+    "#c:glass_panes/colorless",
+    "#c:glass_panes/colorless",
+    "#c:gears/netherite",
+    "mifa:speed_addon_7",
+    "minecraft:sugar",
+    "minecraft:sugar"
+  ],
+  "inputFluid": {
+    "amount": 8000,
+    "fluid": "industrialforegoing:ether_gas"
+  },
+  "output": {
+    "components": {
+      "titanium:augments": {
+        "Speed": 9.0
+      }
+    },
+    "count": 1,
+    "id": "mifa:speed_addon_8"
+  },
+  "processingTime": 1600,
+  "type": "industrialforegoing:dissolution_chamber"
+}

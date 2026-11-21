@@ -1,0 +1,9 @@
+{
+  "components": {
+    "titanium:augments": {
+      "Efficiency": 0.7
+    }
+  },
+  "max_stack_size": 16,
+  "template": "minecraft:stick"
+}

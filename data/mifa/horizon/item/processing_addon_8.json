@@ -1,0 +1,9 @@
+{
+  "components": {
+    "titanium:augments": {
+      "Processing": 9.0
+    }
+  },
+  "max_stack_size": 16,
+  "template": "minecraft:stick"
+}

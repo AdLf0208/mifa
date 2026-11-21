@@ -1,0 +1,27 @@
+{
+  "input": [
+    "#c:dusts/redstone",
+    "#c:dusts/redstone",
+    "#c:glass_panes/colorless",
+    "#c:glass_panes/colorless",
+    "#c:gears/diamond",
+    "industrialforegoing:speed_addon_tier_1",
+    "minecraft:sugar",
+    "minecraft:sugar"
+  ],
+  "inputFluid": {
+    "amount": 1000,
+    "fluid": "industrialforegoing:latex"
+  },
+  "output": {
+    "components": {
+      "titanium:augments": {
+        "Speed": 3.0
+      }
+    },
+    "count": 1,
+    "id": "industrialforegoing:speed_addon_tier_2"
+  },
+  "processingTime": 200,
+  "type": "industrialforegoing:dissolution_chamber"
+}

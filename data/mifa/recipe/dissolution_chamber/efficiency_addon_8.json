@@ -1,0 +1,27 @@
+{
+  "input": [
+    "minecraft:dragon_head",
+    "minecraft:dragon_breath",
+    "#c:glass_panes/colorless",
+    "#c:glass_panes/colorless",
+    "#c:gears/netherite",
+    "mifa:efficiency_addon_7",
+    "#c:rods/blaze",
+    "#c:rods/blaze"
+  ],
+  "inputFluid": {
+    "amount": 8000,
+    "fluid": "industrialforegoing:ether_gas"
+  },
+  "output": {
+    "components": {
+      "titanium:augments": {
+        "Efficiency": 0.19999999
+      }
+    },
+    "count": 1,
+    "id": "mifa:efficiency_addon_8"
+  },
+  "processingTime": 1600,
+  "type": "industrialforegoing:dissolution_chamber"
+}

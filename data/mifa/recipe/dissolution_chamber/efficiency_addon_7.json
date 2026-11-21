@@ -1,0 +1,27 @@
+{
+  "input": [
+    "minecraft:beacon",
+    "#c:nether_stars",
+    "#c:glass_panes/colorless",
+    "#c:glass_panes/colorless",
+    "#c:gears/netherite",
+    "mifa:efficiency_addon_6",
+    "#c:rods/blaze",
+    "#c:rods/blaze"
+  ],
+  "inputFluid": {
+    "amount": 7000,
+    "fluid": "industrialforegoing:ether_gas"
+  },
+  "output": {
+    "components": {
+      "titanium:augments": {
+        "Efficiency": 0.3
+      }
+    },
+    "count": 1,
+    "id": "mifa:efficiency_addon_7"
+  },
+  "processingTime": 1400,
+  "type": "industrialforegoing:dissolution_chamber"
+}

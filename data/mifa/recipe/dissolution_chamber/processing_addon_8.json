@@ -1,0 +1,27 @@
+{
+  "input": [
+    "minecraft:dragon_head",
+    "minecraft:dragon_breath",
+    "#c:glass_panes/colorless",
+    "#c:glass_panes/colorless",
+    "#c:gears/netherite",
+    "mifa:processing_addon_7",
+    "#c:player_workstations/furnaces",
+    "#c:player_workstations/crafting_tables"
+  ],
+  "inputFluid": {
+    "amount": 8000,
+    "fluid": "industrialforegoing:ether_gas"
+  },
+  "output": {
+    "components": {
+      "titanium:augments": {
+        "Processing": 9.0
+      }
+    },
+    "count": 1,
+    "id": "mifa:processing_addon_8"
+  },
+  "processingTime": 1600,
+  "type": "industrialforegoing:dissolution_chamber"
+}

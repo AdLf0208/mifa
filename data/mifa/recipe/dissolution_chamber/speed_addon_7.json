@@ -1,0 +1,27 @@
+{
+  "input": [
+    "minecraft:beacon",
+    "#c:nether_stars",
+    "#c:glass_panes/colorless",
+    "#c:glass_panes/colorless",
+    "#c:gears/netherite",
+    "mifa:speed_addon_6",
+    "minecraft:sugar",
+    "minecraft:sugar"
+  ],
+  "inputFluid": {
+    "amount": 7000,
+    "fluid": "industrialforegoing:ether_gas"
+  },
+  "output": {
+    "components": {
+      "titanium:augments": {
+        "Speed": 8.0
+      }
+    },
+    "count": 1,
+    "id": "mifa:speed_addon_7"
+  },
+  "processingTime": 1400,
+  "type": "industrialforegoing:dissolution_chamber"
+}

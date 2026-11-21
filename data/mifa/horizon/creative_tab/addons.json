@@ -1,0 +1,25 @@
+{
+  "icon": "mifa:speed_addon_8",
+  "items": [
+    "mifa:efficiency_addon_3",
+    "mifa:efficiency_addon_4",
+    "mifa:efficiency_addon_5",
+    "mifa:efficiency_addon_6",
+    "mifa:efficiency_addon_7",
+    "mifa:efficiency_addon_8",
+    "mifa:processing_addon_3",
+    "mifa:processing_addon_4",
+    "mifa:processing_addon_5",
+    "mifa:processing_addon_6",
+    "mifa:processing_addon_7",
+    "mifa:processing_addon_8",
+    "mifa:speed_addon_3",
+    "mifa:speed_addon_4",
+    "mifa:speed_addon_5",
+    "mifa:speed_addon_6",
+    "mifa:speed_addon_7",
+    "mifa:speed_addon_8",
+    "mifa:netherite_gear"
+  ],
+  "title": "itemGroup.mifa.addons"
+}
