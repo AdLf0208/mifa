@@ -1,10 +1,17 @@
-# Package receipt — mifa 0.2.1
+# Package receipt — mifa 0.2.2
 
 | field | value |
 |---|---|
-| version | `0.2.1` |
+| version | `0.2.2` |
 | file | `mifa.hmod` |
-| bytes | 62,998 |
-| sha256 | `19f1ffcd80f62077197b5561fc07f1c9786369540156300716714bbf5ae7008a` |
+| bytes | 63,411 |
+| sha256 | `cb56241774645af99b4135a0fe01668b4bdac47eba40a75945b369f9f7849149` |
+| source | this tag — the tree here is the source that produced the archive |
+| game | 26.3 |
+| horizon | `0a875da91dbb0fdcb7ba8c42c11341aa229af51a` |
+| horizon-mixins | `e59da9094f0c2fdda6c627fe9eff22dec6a906f0` |
 
-`LICENSE` inside the archive carries the upstream MIT notice (Copyright (c) 2024 Christofmeg) and this port's own notice.
+## Verification of these exact bytes
+
+See `notes.md` and `VALIDATION.md` at this tag for the full ladder; the digest above is the
+release asset's.

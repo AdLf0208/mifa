@@ -11,6 +11,14 @@
 #   tools/build-game.sh          # build (or reuse) and export, then print the exports
 #   eval "$(tools/build-game.sh)" && tools/e2e.sh
 #
+# `MIFA_PARENT_SRC=<dir>` builds the parent from that directory instead of
+# `ports/industrialforegoing`. It exists for the dependency leg (0.2.2): the declared floor is
+# `industrialforegoing >=0.2.5`, so the leg must run against the floor's delivered source —
+# `~/.cache/horizon-e2e/<pin>/mifa-parent-0.2.5/industrialforegoing`, copied out of this export
+# when the parent was 0.2.5 (manifest `version = "0.2.5"`, 23 chamber recipes). The live port tree
+# is another job's in-flight slice; building it here would test that slice, not this package's
+# floor, and the two would be indistinguishable in the log.
+#
 # Everything lives under the campaign's shared root (`~/.cache/horizon-e2e`), so the
 # Nightly and the prepared 26.3 resources are the ones already installed — never `/tmp`.
 set -uo pipefail
@@ -30,6 +38,7 @@ CONFIG=$E2E_ROOT/root/config
 HOME_DIR=$E2E_ROOT/root/home
 VERSIONS=$DATA/horizon-launcher/versions
 OUT=${MIFA_GAME_DIR:-$E2E_ROOT/$PIN/mifa-two-mod}
+PARENT_SRC=${MIFA_PARENT_SRC:-$CAMPAIGN/ports/industrialforegoing}
 RES_VERSION=26.3
 
 say() { printf '%s: %s\n' "${0##*/}" "$*" >&2; }
@@ -63,19 +72,19 @@ print(" ".join(i.get("id","") for i in d))' | grep -qw "$INSTANCE" \
 
 # Reuse an export whose parent build is current: compare the manifest it packaged.
 PACKAGED=$OUT/horizon-native-mods/industrialforegoing/horizon-mod.toml
-if [ -f "$PACKAGED" ] && cmp -s "$PACKAGED" "$CAMPAIGN/ports/industrialforegoing/horizon-mod.toml" \
+if [ -f "$PACKAGED" ] && cmp -s "$PACKAGED" "$PARENT_SRC/horizon-mod.toml" \
    && [ -x "$OUT/horizon-client" ]; then
     say "reusing the two-mod export in $OUT (the parent's manifest is unchanged)"
 else
-    say "native-build industrialforegoing into instance $INSTANCE (no other mod installed)"
-    launcher native-build "$CAMPAIGN/ports/industrialforegoing" --instance "$INSTANCE" \
+    say "native-build industrialforegoing from $PARENT_SRC into instance $INSTANCE (no other mod installed)"
+    launcher native-build "$PARENT_SRC" --instance "$INSTANCE" \
         --trust-native-code --json >&2 || die "native-build failed for industrialforegoing" 10
     # The build's own version folder: the newest native-* tag carrying the parent.
     BUILT=""
     for candidate in $(ls -1t "$VERSIONS" | grep '^native-' || true); do
         [ -f "$VERSIONS/$candidate/horizon-native-mods/industrialforegoing/horizon-mod.toml" ] || continue
         cmp -s "$VERSIONS/$candidate/horizon-native-mods/industrialforegoing/horizon-mod.toml" \
-               "$CAMPAIGN/ports/industrialforegoing/horizon-mod.toml" && { BUILT=$candidate; break; }
+               "$PARENT_SRC/horizon-mod.toml" && { BUILT=$candidate; break; }
     done
     [ -n "$BUILT" ] || die "no built version carries industrialforegoing" 10
     say "built $BUILT; exporting to $OUT"

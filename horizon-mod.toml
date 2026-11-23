@@ -1,6 +1,6 @@
 id = "mifa"
 name = "More Industrial Foregoing Addons"
-version = "0.2.1"
+version = "0.2.2"
 description = """A port of More Industrial Foregoing Addons for Horizon: the 18 Industrial Foregoing addons
 above tier 2, three per tier from tier 3 to tier 8 — speed, efficiency and processing — each a
 content item carrying the `titanium:augments` payload its parent's item class would stamp
@@ -26,3 +26,14 @@ api = "0.2"
 side = "both"
 # The 19 items and the creative tab are declared as content in data/mifa/horizon/.
 capabilities = ["registries"]
+
+# The parent is a dependency, not an optional integration: this package's whole payload is the
+# parent's. Every one of the 19 items is a content item whose `titanium:augments` component the
+# parent's machine reads (`fn component_types` registers the type from industrialforegoing 0.2.3),
+# and all 10 carried recipes are the parent's `industrialforegoing:dissolution_chamber` recipe
+# type, which the parent registers with its machine from 0.2.5. The floor is therefore the later
+# of the two (0.2.5), and the resolver reads this table — not the ids in data/. Without the parent
+# this package is refused by name before anything starts instead of registering items whose
+# component nothing decodes and recipes no machine can read. Evidence: notes.md, "The dependency".
+[dependencies]
+industrialforegoing = { version = ">=0.2.5", reason = "All 19 items carry industrialforegoing's titanium:augments component and all 10 carried recipes are the parent's dissolution_chamber type; 0.2.3 registered the component and 0.2.5 the chamber and its recipe type, so without >=0.2.5 the items are inert and the recipes are dead data.", url = "https://github.com/AdLf0208/industrialforegoing" }

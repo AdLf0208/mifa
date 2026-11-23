@@ -89,3 +89,62 @@ entry deterministically after the build; `--check` compares the delivered file w
 
 Evidence: `ports/_shared/evidence/mifa/license/` (builds, cmp, check, fits, verifier) and
 `ports/_shared/evidence/mifa-e2e/` (the three legs).
+
+# mifa — validation record, 0.2.2 (dependency declaration, supersedes the 0.2.1 numbers above)
+
+Package: `ports/mifa/mifa.hmod` — **63,411 B**, sha256
+`cb56241774645af99b4135a0fe01668b4bdac47eba40a75945b369f9f7849149`, **108 entries**, declared
+version **0.2.2**, API `0.2`, `side = "both"`, `capabilities = ["registries"]`, **no `[native]`**,
+**no packed `Cargo.lock`**, and now a `[dependencies]` table:
+
+```toml
+[dependencies]
+industrialforegoing = { version = ">=0.2.5", reason = "…", url = "https://github.com/AdLf0208/industrialforegoing" }
+```
+
+**The floor is `>=0.2.5` because the package binds two parent surfaces registered in different
+releases:** `titanium:augments` from parent **0.2.3** and the `dissolution_chamber` block, recipe
+type and serializer from parent **0.2.5**. A requirement is satisfied only when both exist, so the
+later one is the floor — the version the reviewer named, with no later version needed for any symbol
+this package uses. Evidence: `ports/industrialforegoing/notes.md` §"Slice 3" and §"Slice 5";
+`ports/_shared/evidence/mifa/resolve-symbols-after-0.2.5.log`.
+
+| Gate | Command | Result |
+|---|---|---|
+| dependency gate | `python3 ports/tools/check-manifest-deps.py mifa` | `mifa  ok  declared=['industrialforegoing']`, exit 0 |
+| the content rule | `python3 tools/gen_content.py --check` | `84 generated files, 0 drifted`, exit 0 (`sdk-test.log`) |
+| package check | `cargo horizon-mod check mifa.hmod` | `mifa 0.2.2 (mod, API 0.2, both)`, `63411 bytes, SHA-256 cb562417…`, `no code: content only, nothing to run`, exit **0** (`dependency/final-check.log`) |
+| reproducible package | `rm -f Cargo.lock` + `cargo horizon-mod build` + `tools/pack_license.py`, twice | `cmp`-identical, both `cb562417…`, `Cargo.lock` absent after both builds and after `check` |
+| no probe lock | `unzip -l mifa.hmod \| grep -c Cargo.lock` | **0** in both archives |
+| `fits` on the pin | `cargo horizon-mod fits mifa.hmod --build 0a875da` | exit **2**, `… is a content mod, with no code to check against a build; \`fits\` doesn't apply.` (HANDOVER §0g) |
+| `fits` on another build | `cargo horizon-mod fits mifa.hmod --build 0b14f8a` | exit **2**, the same line |
+| the parent compiles | `launcher native-build <delivered 0.2.5 source>` (`dependency/parent-build.log`) | `Compiling industrialforegoing (1 of 1)`, `native-0a875da-2e712ee48d45`, exit 0 |
+| the refusal | `tools/dependency-refusal.sh` (unmodded Nightly + `--dev-mod`, no parent) | `Horizon: mod load refused: mifa requires missing mod industrialforegoing (… reason + url)`, exit **1** → `PASS` + `EXIT:0` |
+| the refusal can fail | `SELFTEST=1 tools/dependency-refusal.sh` | **`EXIT:1`** |
+| the in-game leg | `tools/e2e.sh` on the fresh 0.2.5 build + the 0.2.2 package | `PASS` + **`EXIT:0`**; chamber table `33/33` (parent 23 + this 10) |
+| the control | `NEGATIVE=1 tools/e2e.sh` | `FAIL` + **`EXIT:1`** (`mifa:speed_addon_3` absent) |
+| the counterfactual | `SELFTEST=1 tools/e2e.sh` | `FAIL` + **`EXIT:1`** (`tier 3: the speed the seated addon reads is 4, expected 5`) |
+| log gate | `python3 ports/tools/check-e2e-logs.py mifa-e2e --strict` | `logs=3 ok=3 missing-exit=0 bad-exit=0`, exit 0 |
+| package verifier | `python3 ports/tools/verify-sdk-package.py mifa` | **1/1** |
+| skills gate | `python3 ports/tools/check-skills.py --notes ports/mifa --strict` | PASS |
+
+The leg runs on the parent's **delivered 0.2.5 source**
+(`~/.cache/horizon-e2e/0a875da/mifa-parent-0.2.5/industrialforegoing`, manifest `version = "0.2.5"`,
+23 chamber recipes), not on `ports/industrialforegoing`: that tree is another job's in-flight 0.2.12
+slice, and building it would test that slice rather than the floor. `tools/build-game.sh` takes it via
+`MIFA_PARENT_SRC`, so the run is reproducible without touching the parent's port.
+
+Reproduce:
+
+```sh
+cd /home/adlf/Desktop/all_the_mods_10_rust_rewrite
+python3 ports/tools/check-manifest-deps.py mifa
+bash ports/mifa/tools/dependency-refusal.sh                 # PASS + EXIT:0
+SELFTEST=1 bash ports/mifa/tools/dependency-refusal.sh      # EXIT:1
+BUILD_LOCAL=1 ports/tools/build-slot.sh run --job W1-mifa --port ports/mifa --step build -- \
+    bash -c 'cd ports/mifa && rm -f Cargo.lock && CARGO_INCREMENTAL=0 cargo horizon-mod build && python3 tools/pack_license.py'
+BUILD_LOCAL=1 ports/tools/build-slot.sh run --job W1-mifa --port ports/mifa --step build -- \
+    bash -c 'MIFA_PARENT_SRC=$HOME/.cache/horizon-e2e/0a875da/mifa-parent-0.2.5/industrialforegoing \
+             MIFA_GAME_DIR=$HOME/.cache/horizon-e2e/0a875da/mifa-two-mod-0.2.5 bash ports/mifa/tools/build-game.sh'
+# then the three legs with GAME/CTL/RES/E2E_TMP/SOCK from that export, as in the 0.2.0 record.
+```

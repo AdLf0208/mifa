@@ -1,4 +1,4 @@
-# mifa — port notes (third dispatch: the content package; 0.2.1 after the licence repair)
+# mifa — port notes (fourth dispatch: the dependency declaration; 0.2.2)
 
 Port of **More Industrial Foregoing Addons 2.1.0**
 (`mifa-neoforge-1.21.x-2.1.0.jar`, MIT, SHA-256
@@ -7,9 +7,10 @@ Port of **More Industrial Foregoing Addons 2.1.0**
 commit `5fc3ac843f03397f7a117152a081e42980ee2e52` (tag `2.1.0`). Target pin: Horizon
 **`0a875da91dbb0fdcb7ba8c42c11341aa229af51a`** + horizon-mixins
 `e59da9094f0c2fdda6c627fe9eff22dec6a906f0`, game 26.3, API `0.2`. Delivered: `mifa.hmod`,
-**0.2.1** — a **first publication** (the id is not on `main`). PR #1644 was opened with **0.2.0**
-(61,784 B, `a647e8b3…`); the licence repair at the end of this file is the same PR's archive at
-**0.2.1** (62,998 B, `19f1ffcd…`).
+**0.2.2** — a **first publication** (the id is not on `main`). PR #1644 was opened with **0.2.0**
+(61,784 B, `a647e8b3…`); the licence repair was the same PR's archive at **0.2.1** (62,998 B,
+`19f1ffcd…`), and the dependency review fix is its archive at **0.2.2** (63,411 B, `cb562417…`, see
+"The dependency" below).
 
 **Licence: MIT — rank 0 (permissive).** Read from the jar (`META-INF/neoforge.mods.toml`:
 `license = "The MIT License (MIT)"`; `audit_licences.py --mod mifa --fetch` → `AUDITED`,
@@ -124,6 +125,8 @@ Per-family `blocked` symbols, so the gap is a line and not a shrug:
 
 | What | State | Phase / assertion |
 |---|---|---|
+| the parent dependency is declared, and its absence is refused by name | `tested` | `tools/dependency-refusal.sh`: `mod load refused: mifa requires missing mod industrialforegoing (… reason + url)`, exit 1, no `content from`; `SELFTEST=1` `EXIT:1` |
+| the declared floor `>=0.2.5` is a version this package runs on | `tested` | the parent compiled from its delivered **0.2.5** source (`Compiling industrialforegoing (1 of 1)`) and the whole leg is green on that build; 0.2.3 alone has the component but not the chamber, so the 10 recipes would be dead |
 | the package loads beside the parent, with its recipes and items | `tested` | P: 0 `load-items`/`horizon-recipes`/`unknown component type` errors in the log; the game logged `content from 2 mod(s)` |
 | an unknown id is refused | `tested` | P: `/give mifa:not_an_item` → the game's own `Unknown item 'mifa:not_an_item'` (the exit status of `ctl command` is `ok:true` for this, so the reply is parsed) |
 | the 19 items exist and are named | `tested` | A: 19 gives, 19 `Gave 1 [<name>]` lines, 19 inventory counts |
@@ -215,6 +218,8 @@ Per-family `blocked` symbols, so the gap is a line and not a shrug:
 | `check.log` | `cargo horizon-mod check` on the delivered bytes: sha256, bytes, `no code: content only` |
 | `fits-0a875da.log`, `fits-0b14f8a.log` | `fits` exit 2 with the tool's "doesn't apply" line, on two builds |
 | `jar-inventory.log`, `recipes-tags.log`, `upstream-source.log`, `if-addon-source.log`, `parent-port.log`, `sdk-surface.log`, `convention-tags.log`, `parent-references.log`, `block-decision.md` | the **first two dispatches'** measurements, kept: the jar inventory, every recipe and tag, the upstream classes, the parent's old surface, the SDK greps, and the 29-of-61 matrix |
+| `dependency/{build-1,check-pre,parent-build,refusal,refusal-selftest}.log` | the **0.2.2** dependency slice: the two rebuilds and their lock check, `check` on 0.2.2, `Compiling industrialforegoing (1 of 1)` from the delivered 0.2.5 source, and the loader refusal (+ its counterfactual) |
+| `sdk-test.log` | the content package's rule: `gen_content.py --check`, 84 files, 0 drifted (no crate, so `cargo test` does not apply) |
 
 `ports/_shared/evidence/mifa-e2e/`: `e2e-default.log` (PASS + EXIT:0), `e2e-negative.log`
 (control: the same game without `--dev-mod`; FAIL + EXIT:1), `e2e-selftest.log`
@@ -290,6 +295,101 @@ and `unzip -p mifa.hmod LICENSE` is byte-identical to `ports/mifa/LICENSE`
 (`cmp <(unzip -p mifa.hmod LICENSE) ports/mifa/LICENSE`). Nothing in game changes: the items,
 recipes and readouts the leg asserts are the 0.2.0 ones.
 
+## The dependency (0.2.2, review fix on PR #1644)
+
+Reviewer `NikitaMGrimm`, verbatim: *"Its `horizon-mod.toml` still needs
+`industrialforegoing = \">=0.2.5\"` under `[dependencies]`. The add-on uses the parent's registered
+`titanium:augments` component and dissolution chamber."*
+
+**What was wrong.** 0.2.1 shipped no `[dependencies]` table; `python3 ports/tools/check-manifest-deps.py mifa`
+printed `warn declared=-` and `soft uses industrialforegoing in ['data']`. The pinned resolver reads
+**declared dependencies** (`horizon-mod-package/src/dependencies.rs`), not the ids inside `data/`, so
+a game with the package but without the parent had no way to say what it needs: the ids it binds are
+a component type (`titanium:augments`) and a recipe type (`industrialforegoing:dissolution_chamber`)
+that only the parent registers — this port's own 0.2.0 notes record `titanium:augments` failing the
+content root when nothing registered it, and the 10 recipes are dead data without the chamber. The
+declaration turns that into the loader's named refusal below, before any content is read.
+
+**The floor was checked against what the package uses, not copied from the review.** Two separate
+parent surfaces are bound, and they landed in different releases of the parent port:
+
+| Surface this package binds | First parent version with it | Where that is recorded |
+|---|---|---|
+| `titanium:augments` component type, decoded by the machine's `use_item_on` (all 19 items) | **0.2.3** — slice 3, "adds the `titanium:augments` component and the speed/efficiency arithmetic the parent's machines read" | `ports/industrialforegoing/notes.md` §"Slice 3 — the augment family (0.2.3)"; `fn component_types` |
+| `industrialforegoing:dissolution_chamber` block, recipe type and serializer (all 10 carried recipes) | **0.2.5** — slice 5, "the dissolution chamber and its own recipe type" | `ports/industrialforegoing/notes.md` §"Slice 5"; `resolve-symbols-after-0.2.5.log` |
+
+A requirement is satisfied only when **every** surface is present, so the floor is the later one:
+**`>=0.2.5`** — the version the reviewer named, and no later version is needed for any symbol this
+package names. (0.2.4's `ModuleCore` set and 0.2.6+ add families this package does not touch.)
+
+**What changed.** `horizon-mod.toml`: `version = "0.2.2"` and
+
+```toml
+[dependencies]
+industrialforegoing = { version = ">=0.2.5", reason = "All 19 items carry industrialforegoing's titanium:augments component and all 10 carried recipes are the parent's dissolution_chamber type; 0.2.3 registered the component and 0.2.5 the chamber and its recipe type, so without >=0.2.5 the items are inert and the recipes are dead data.", url = "https://github.com/AdLf0208/industrialforegoing" }
+```
+
+The reason is 282 bytes (the resolver's cap is 512) and the url is `https://`, as the other
+dependent ports declare it. `check-manifest-deps.py mifa` now prints
+`mifa  ok  declared=['industrialforegoing']`, exit 0.
+
+**The refusal, proved by the loader** (`tools/dependency-refusal.sh`, an unmodded Nightly export —
+the two-mod game minus the parent, one variable):
+
+```
+Horizon: mod load refused: mifa requires missing mod industrialforegoing (All 19 items carry
+industrialforegoing's titanium:augments component and all 10 carried recipes are the parent's
+dissolution_chamber type; 0.2.3 registered the component and 0.2.5 the chamber and its recipe type,
+so without >=0.2.5 the items are inert and the recipes are dead data.
+https://github.com/AdLf0208/industrialforegoing)
+```
+
+exit **1**, no `content from` line — the game stops before a world exists
+(`ports/_shared/evidence/mifa/dependency/refusal.log`, `PASS` + `EXIT:0`). `SELFTEST=1` asserts the
+refusal is **absent** and exits **1**: the grep can fail (`refusal-selftest.log`).
+
+**With the parent installed, both compile and the existing leg passes.** The parent was built from
+its **delivered 0.2.5 source** — `~/.cache/horizon-e2e/0a875da/mifa-parent-0.2.5/industrialforegoing`,
+copied out of the two-mod export when the parent was 0.2.5 (`version = "0.2.5"`, 23 chamber recipes) —
+not from `ports/industrialforegoing`: that tree is another job's in-flight 0.2.12 slice at the time of
+this run, and building it would test that slice rather than this package's floor. The launcher
+printed `Compiling industrialforegoing (1 of 1)` (2 s, warm SDK cache) and exported
+`native-0a875da-2e712ee48d45`; the package itself is a content package, so there is no second
+compile unit — `cargo horizon-mod build` builds it (a content package has no `Cargo.toml`;
+`build_in` refuses one), and the game loads it with `--dev-mod` (`parent-build.log`). The launcher
+says the same thing in one line: `native-build ports/mifa` → `error: There are no mods to build: the
+folder has none, or every mod was left out.`, exit 1 (`no-native-unit.log`), so the review trap's
+`Compiling mifa (2 of 2)` has no compile to confirm — mifa is not a native build unit at all.
+
+| Gate | Command | Result |
+|---|---|---|
+| dependency gate | `python3 ports/tools/check-manifest-deps.py mifa` | `ok declared=['industrialforegoing']`, exit 0 |
+| the parent compiles | `launcher native-build <0.2.5 source>` | `Compiling industrialforegoing (1 of 1)`, `native-0a875da-2e712ee48d45`, exit 0 |
+| the refusal | `tools/dependency-refusal.sh` (no parent, `--dev-mod mifa.hmod`) | the `mod load refused: mifa requires missing mod industrialforegoing (…)` line, exit **1** → `EXIT:0` |
+| the refusal can fail | `SELFTEST=1 tools/dependency-refusal.sh` | `EXIT:1` |
+| the leg, parent present | `tools/e2e.sh` on the fresh 0.2.5 build + 0.2.2 package | `PASS` + **`EXIT:0`**; chamber table `33/33` (the parent's 23 + this package's 10), unchanged |
+| the control | `NEGATIVE=1 tools/e2e.sh` | `FAIL` + **`EXIT:1`** |
+| the counterfactual | `SELFTEST=1 tools/e2e.sh` | `FAIL` + **`EXIT:1`** (`tier 3: the speed … is 4, expected 5`) |
+| log gate | `python3 ports/tools/check-e2e-logs.py mifa-e2e --strict` | `logs=3 ok=3 missing-exit=0 bad-exit=0` |
+
+The three legs ran on the delivered bytes: the first pack wrote `cb562417…`, the legs ran on that
+file, and the two rebuilds after the docs were `cmp`-identical to it (`final-builds.log`), so the
+archive the legs exercised is the archive this record describes. Before the parent build, all **26**
+`native-*` tags were scanned for one carrying mifa: **0** do (a content package is never a native
+build unit), so there was no stale tag to remove (`native-tags.log`).
+
+**The package, rebuilt from the final tree.** `rm -f Cargo.lock` + `cargo horizon-mod build` +
+`tools/pack_license.py`, twice: `cmp`-identical, **63,411 B**, SHA-256
+**`cb56241774645af99b4135a0fe01668b4bdac47eba40a75945b369f9f7849149`**, **108 entries** (the 0.2.1
+archive was 62,998 B, `19f1ffcd…`, the same 108 entries — the manifest grew by the dependency table
+and its comment, the content is unchanged). **No `Cargo.lock`**: measured absent in the tree after
+both builds and after `check`, and `unzip -l | grep -c Cargo.lock` is 0 in both archives (the probe
+lock the verifier warns about does not appear here: the probe is written for a package that has a
+`Cargo.toml`, and a content package has none).
+
+The licence entry is untouched: `unzip -p mifa.hmod LICENSE` is byte-identical to `ports/mifa/LICENSE`
+(`Copyright (c) 2024 Christofmeg` and the MIT permission paragraph, verbatim).
+
 ## Next slice
 
 **The tier-4 chain, once a liquid-XP fluid exists** — the gap line is
@@ -301,5 +401,12 @@ its reader learns `Processing` (then `processing_addon_3` and the six `Processin
 seatable, and B3 becomes a positive assertion). The cheapest next step is a **parent** slice, not
 this one: declare `sludge`/`biofuel` and the two processing addons, and this port gains 8 recipes
 and 6 measurable addons.
+
+The dependency fix does not change that order, but it does add one obligation: when the parent's
+next slice lands (0.2.12 was in flight while this ran), mifa's leg must be re-run against that build,
+because B3's "a Processing addon is refused" is a statement about the parent's reader and becomes a
+positive assertion the moment the parent reads `Processing`. The tile to re-cut is
+`tools/build-game.sh`'s parent: this slice pinned it to the delivered 0.2.5 source through
+`MIFA_PARENT_SRC`; the re-run against a newer published parent drops that variable.
 
 Skills: superpowers/using-superpowers,brainstorming,writing-plans,test-driven-development,systematic-debugging,verification-before-completion; BeautifulRust/none (no Rust change — the slice is content-only by measurement; `rust-best-practices` was read for the shape decision and does not apply to a package with no crate)
